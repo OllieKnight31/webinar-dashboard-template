@@ -1,0 +1,226 @@
+/* Webinar System: what this app adds on top of /theme.css (tokens, light and dark, shared
+   components). Nothing here sets a colour of its own: everything reads the --ai-* tokens.
+   The one exception is the design picker's previews, which show the CLIENT'S chosen colours. */
+
+.ws-main { padding-block: var(--ai-s-6) var(--ai-s-7); }
+.ws-hide { display: none !important; }
+.ws-note { font-size: 13px; color: var(--ai-muted); line-height: 1.5; }
+.ws-quiet { font: 400 12px/1.4 var(--ai-font-mono); color: var(--ai-muted); letter-spacing: .02em; }
+.ws-link { color: var(--ai-text); text-decoration: underline; text-underline-offset: 3px; font-weight: 500; }
+.ws-saved { font: 500 11px/1 var(--ai-font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ai-muted); min-height: 12px; }
+.ws-saved.is-bad { color: var(--ai-bad); }
+
+/* ── the guide ── */
+.ws-progress { display: grid; gap: 8px; margin-bottom: var(--ai-s-5); }
+.ws-progress__top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.ws-progress__bar { height: 6px; background: var(--ai-track); border-radius: var(--ai-r-pill); overflow: hidden; }
+.ws-progress__bar i { display: block; height: 100%; background: var(--ai-text); border-radius: inherit; transition: width .25s var(--ai-ease, ease); }
+.ws-stepnav { margin-bottom: var(--ai-s-5); flex-wrap: wrap; }
+.ai-step.ws-step--n { padding: 7px; }
+.ws-q { padding-block: var(--ai-s-5); border-top: 1px solid var(--ai-border); display: grid; gap: 10px; }
+.ws-q:first-of-type { border-top: 0; padding-top: 0; }
+.ws-q__title { font: 400 22px/1.25 var(--ai-font-display); letter-spacing: -.01em; }
+.ws-q__why { font-size: 14px; color: var(--ai-text-2); line-height: 1.5; }
+.ws-q__eg { font-size: 13px; color: var(--ai-muted); line-height: 1.5; }
+.ws-q__eg b { font-weight: 500; color: var(--ai-text-2); }
+.ws-q.is-missing .ws-q__title::after { content: "Still needed"; margin-left: 10px; font: 500 10px/1 var(--ai-font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ai-warn); vertical-align: middle; }
+.ws-skip { background: none; border: 0; padding: 0; font: 500 13px/1 var(--ai-font-body); color: var(--ai-muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; justify-self: start; }
+.ws-skip:hover { color: var(--ai-text); }
+.ws-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: var(--ai-s-6); padding-top: var(--ai-s-5); border-top: 1px solid var(--ai-border); flex-wrap: wrap; }
+.ws-tiles { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.ws-tile { display: grid; gap: 4px; align-content: center; min-height: 64px; padding: 12px 14px; text-align: left; background: var(--ai-surface); border: 1px solid var(--ai-border-strong); border-radius: var(--ai-r-sm); color: var(--ai-text); font: 500 14.5px/1.25 var(--ai-font-body); cursor: pointer; }
+.ws-tile small { font: 400 12px/1.35 var(--ai-font-body); color: var(--ai-muted); }
+.ws-tile:hover { border-color: var(--ai-text); }
+.ws-tile[aria-pressed="true"] { background: var(--ai-btn-bg); border-color: var(--ai-btn-bg); color: var(--ai-btn-fg); }
+.ws-tile[aria-pressed="true"] small { color: inherit; opacity: .75; }
+.ws-tile:focus-visible, .ws-pick:focus-visible, .ws-mic:focus-visible { outline: 2px solid var(--ai-focus); outline-offset: 2px; }
+
+/* lists you add to */
+.ws-list { display: grid; gap: 8px; }
+.ws-list__row { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.ws-list__n { font: 400 12px/1 var(--ai-font-mono); color: var(--ai-faint); text-align: right; }
+.ws-x { width: 36px; height: 36px; border-radius: 8px; border: 1px solid transparent; background: none; color: var(--ai-muted); font-size: 18px; line-height: 1; cursor: pointer; }
+.ws-x:hover { border-color: var(--ai-border-strong); color: var(--ai-text); }
+.ws-result { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--ai-border); border-radius: var(--ai-r-sm); background: var(--ai-surface); }
+
+/* ── voice typing ── */
+.ws-voice { position: relative; display: block; }
+.ws-voice > .ai-input, .ws-voice > .ai-textarea { padding-right: 48px; width: 100%; }
+.ws-mic { position: absolute; right: 6px; top: 6px; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 8px; border: 1px solid transparent; background: none; color: var(--ai-muted); cursor: pointer; }
+.ws-mic:hover { color: var(--ai-text); border-color: var(--ai-border-strong); }
+.ws-mic svg { width: 17px; height: 17px; }
+.ws-mic.is-listening { color: var(--ai-btn-fg); background: var(--ai-btn-bg); animation: ws-pulse 1.1s ease-in-out infinite; }
+@keyframes ws-pulse { 0%, 100% { box-shadow: 0 0 0 0 var(--ai-border-strong); } 50% { box-shadow: 0 0 0 7px transparent; } }
+@media (prefers-reduced-motion: reduce) { .ws-mic.is-listening { animation: none; outline: 2px solid var(--ai-focus); outline-offset: 2px; } }
+.ws-voice__status { display: block; min-height: 0; font-size: 12.5px; color: var(--ai-text-2); margin-top: 4px; }
+.ws-voice__status:empty { display: none; }
+
+/* ── a tool's connection card ── */
+.ws-tool { display: grid; gap: var(--ai-s-4); }
+/* nothing inside a question may push the page wider than the screen */
+.ws-q > *, .ws-tool > *, .ws-q .ai-stack > * { min-width: 0; }
+.ws-tool .ai-btn { white-space: normal; text-align: left; height: auto; min-height: 36px; padding-block: 8px; }
+.ws-howto { margin: 0; padding-left: 22px; display: grid; gap: 8px; font-size: 14px; line-height: 1.5; color: var(--ai-text-2); }
+.ws-howto b { color: var(--ai-text); font-weight: 600; }
+.ws-check { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.ws-check__out { font-size: 14px; line-height: 1.45; flex: 1; min-width: 200px; }
+.ws-check__out.is-ok { color: var(--ai-good); font-weight: 500; }
+.ws-check__out.is-bad { color: var(--ai-bad); font-weight: 500; }
+.ws-conn { display: inline-flex; align-items: center; gap: 6px; }
+details.ws-more > summary { cursor: pointer; font: 500 13.5px/1.2 var(--ai-font-body); color: var(--ai-text-2); padding-block: 6px; }
+details.ws-more[open] > summary { margin-bottom: var(--ai-s-3); color: var(--ai-text); }
+.ws-copy { display: flex; gap: 8px; align-items: stretch; }
+.ws-copy code { flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--ai-border); border-radius: 8px; background: var(--ai-surface); font: 400 12.5px/1.4 var(--ai-font-mono); overflow-x: auto; white-space: nowrap; }
+
+/* ── design picker: the previews show the client's own colours ── */
+.ws-picks { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.ws-pick { position: relative; padding: 0; overflow: hidden; text-align: left; background: var(--ai-surface); border: 2px solid var(--ai-border); border-radius: var(--ai-r-sm); cursor: pointer; color: var(--ai-text); }
+.ws-pick[aria-pressed="true"] { border-color: var(--ai-text); }
+.ws-pick[aria-pressed="true"]::after { content: "Chosen"; position: absolute; top: 8px; right: 8px; padding: 4px 8px; border-radius: var(--ai-r-pill); background: var(--ai-btn-bg); color: var(--ai-btn-fg); font: 500 9.5px/1 var(--ai-font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.ws-pick__name { display: block; padding: 9px 12px; border-top: 1px solid var(--ai-border); font: 500 13px/1.2 var(--ai-font-body); }
+.ws-mini { display: block; padding: 16px 14px 14px; min-height: 126px; }
+.ws-mini i, .ws-mini b, .ws-mini s, .ws-mini u { display: block; font-style: normal; text-decoration: none; }
+.ws-mini i { font-size: 8px; letter-spacing: 1.4px; text-transform: uppercase; opacity: .75; margin-bottom: 6px; }
+.ws-mini b { font-size: 17px; line-height: 1.12; margin-bottom: 6px; font-weight: 600; }
+.ws-mini s { font-size: 9.5px; line-height: 1.4; margin-bottom: 10px; }
+.ws-mini u { display: inline-block; font-size: 10px; font-weight: 700; padding: 6px 12px; }
+.ws-fontpick { display: block; padding: 14px; }
+.ws-fontpick b { display: block; font-size: 20px; line-height: 1.15; font-weight: 600; }
+.ws-fontpick span { display: block; font-size: 12.5px; color: var(--ai-muted); margin-top: 4px; }
+.ws-wire { display: grid; gap: 6px; height: 92px; margin: 12px; }
+.ws-wire i { display: block; background: var(--ai-surface-2); border-radius: 4px; }
+.ws-wire .v { background: var(--ai-border-strong); }
+.ws-wire .c { background: var(--ai-text); height: 12px; width: 46%; justify-self: center; border-radius: 99px; }
+.ws-wire.popup { grid-template-rows: 10px 1fr 12px; }
+.ws-wire.split { grid-template-columns: 1.15fr 1fr; }
+.ws-wire.split > span { display: grid; gap: 5px; align-content: center; }
+.ws-wire.split .f { padding: 6px; background: var(--ai-surface-2); border-radius: 6px; }
+.ws-wire.split .f i { background: var(--ai-surface); height: 9px; border: 1px solid var(--ai-border); }
+.ws-wire.split .f .c { width: 100%; border: 0; }
+.ws-shape { display: grid; place-items: center; padding: 18px 12px; }
+.ws-shape span { padding: 9px 20px; font-size: 13px; font-weight: 700; }
+.ws-colour { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.ws-colour input[type=color] { width: 52px; height: 44px; padding: 2px; border: 1px solid var(--ai-border-strong); border-radius: 8px; background: var(--ai-surface); cursor: pointer; }
+.ws-preview { border: 1px solid var(--ai-border); border-radius: var(--ai-r-md); overflow: hidden; }
+.ws-hero { padding: 32px 26px; display: grid; gap: 20px; }
+.ws-hero.split { grid-template-columns: 1.2fr 1fr; align-items: center; }
+.ws-hero.popup { text-align: center; justify-items: center; }
+.ws-hero h3 { font-size: 28px; line-height: 1.1; margin: 0 0 10px; }
+.ws-hero p { font-size: 14px; line-height: 1.5; margin: 0; max-width: 520px; }
+.ws-hero.popup p { margin-inline: auto; }
+.ws-hero__eyebrow { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+.ws-hero__video { width: min(100%, 480px); aspect-ratio: 16 / 9; border-radius: 10px; display: grid; place-items: center; font-size: 12px; }
+.ws-hero__btn { display: inline-block; padding: 13px 26px; font-size: 14px; font-weight: 700; }
+.ws-hero__form { display: grid; gap: 8px; padding: 18px; border-radius: 12px; }
+.ws-hero__form span { display: block; padding: 10px 12px; border-radius: 8px; font-size: 12.5px; }
+
+/* ── build board + checklist ── */
+.ws-board { display: grid; gap: 8px; }
+.ws-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; align-items: center; padding: 12px 14px; background: var(--ai-surface); border: 1px solid var(--ai-border); border-radius: var(--ai-r-sm); }
+.ws-item__name { font: 500 14.5px/1.3 var(--ai-font-body); }
+.ws-item__meta { grid-column: 1 / -1; font-size: 12.5px; color: var(--ai-muted); line-height: 1.45; }
+.ws-item__meta:empty { display: none; }
+.ws-tick { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 2px 12px; align-items: start; padding: 12px 14px; background: var(--ai-surface); border: 1px solid var(--ai-border); border-radius: var(--ai-r-sm); cursor: pointer; }
+.ws-tick input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--ai-text); grid-row: span 2; }
+.ws-tick b { font: 500 14.5px/1.3 var(--ai-font-body); }
+.ws-tick span { font-size: 13px; color: var(--ai-muted); line-height: 1.45; }
+.ws-tick:has(input:checked) b { text-decoration: line-through; color: var(--ai-muted); }
+
+/* ── results ── */
+.ws-strip { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(118px, 1fr); gap: 8px; overflow-x: auto; padding-bottom: 6px; }
+.ws-stage { display: grid; gap: 4px; align-content: start; padding: 14px; background: var(--ai-surface); border: 1px solid var(--ai-border); border-radius: var(--ai-r-sm); min-width: 0; border-top: 3px solid var(--ai-border-strong); }
+.ws-stage.is-ok { border-top-color: var(--ai-good); } .ws-stage.is-warn { border-top-color: var(--ai-warn); } .ws-stage.is-crit { border-top-color: var(--ai-bad); }
+.ws-stage__label { font: 500 10.5px/1.3 var(--ai-font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ai-muted); }
+.ws-stage__n { font: 400 30px/1.05 var(--ai-font-display); letter-spacing: -.02em; }
+.ws-stage__n.is-na { font: 400 14px/1.6 var(--ai-font-body); color: var(--ai-muted); letter-spacing: 0; }
+.ws-stage__rate { font-size: 12.5px; color: var(--ai-text-2); }
+.ws-leak { display: grid; gap: 8px; padding: 20px 22px; border-radius: var(--ai-r-md); border: 1px solid var(--ai-border-strong); background: var(--ai-surface); }
+.ws-leak.is-crit { background: var(--ai-bad-wash); border-color: var(--ai-bad); } .ws-leak.is-warn { background: var(--ai-warn-wash); border-color: var(--ai-warn); } .ws-leak.is-ok { background: var(--ai-good-wash); border-color: var(--ai-good); }
+.ws-leak__s { font: 400 22px/1.3 var(--ai-font-display); letter-spacing: -.01em; }
+.ws-leak__fix { font-size: 14.5px; line-height: 1.5; color: var(--ai-text); }
+.ws-kpis { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.ws-kpi__means { font-size: 12.5px; line-height: 1.45; color: var(--ai-muted); margin-top: 8px; }
+.ws-kpi__fix { font-size: 13px; line-height: 1.45; color: var(--ai-text); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--ai-border); }
+.ws-kpi__fix b { display: block; font: 500 10px/1.4 var(--ai-font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ai-text-2); }
+.ws-kpi__target { font-size: 12.5px; color: var(--ai-text-2); margin-top: 2px; }
+.ws-tools { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+.ws-tools input[type=date] { min-height: 38px; padding: 0 10px; border: 1px solid var(--ai-border-strong); border-radius: 8px; background: var(--ai-surface); color: var(--ai-text); font: 400 13.5px/1 var(--ai-font-body); }
+
+@media (max-width: 640px) {
+  /* a phone's top bar holds the three places and nothing else; Sign out is in the footer */
+  .ai-top__brand, .ws-topout { display: none; }
+  .ai-top__links { margin-left: -12px; margin-right: auto; }
+  .ws-hero.split { grid-template-columns: 1fr; }
+  .ws-hero { padding: 22px 16px; } .ws-hero h3 { font-size: 23px; }
+  .ws-q__title { font-size: 20px; }
+  .ws-foot .ai-btn { flex: 1; }
+  .ws-leak__s { font-size: 19px; }
+  .ws-tiles { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); }
+}
+
+/* Password box with a Show / Hide button */
+.ws-pw { position: relative; }
+.ws-pw .ai-input { padding-right: 68px; }
+.ws-pw__show { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); min-height: 32px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: var(--ai-muted); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.ws-pw__show:hover { color: var(--ai-text); }
+.ws-pw__show:focus-visible { outline: 2px solid var(--ai-focus); outline-offset: 1px; }
+
+/* Ready-made questionnaires: the cards at the end of a step, and one questionnaire open */
+.ws-q__more { font-size: 13.5px; color: var(--ai-text-2); line-height: 1.5; }
+.ws-doc { display: grid; gap: 10px; padding: 16px; background: var(--ai-surface); border: 1px solid var(--ai-border); border-radius: var(--ai-radius, 10px); }
+.ws-doc > * { min-width: 0; }
+.ws-doc__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.ws-doc__top h3 { font: 400 19px/1.25 var(--ai-font-display); letter-spacing: -.01em; }
+.ws-doc__blurb { font-size: 14px; color: var(--ai-text-2); line-height: 1.5; }
+.ws-note.is-bad { color: var(--ai-bad); }
+.ws-file { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 6px 14px; align-items: center; padding: 10px 14px; background: var(--ai-surface); border: 1px solid var(--ai-border); border-radius: var(--ai-radius, 10px); font-size: 14px; }
+.ws-file b { font-weight: 500; overflow-wrap: anywhere; }
+.ws-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.ws-tab { min-height: 36px; padding: 0 14px; border: 1px solid var(--ai-border); border-radius: 999px; background: var(--ai-surface); color: var(--ai-text-2); font: 500 13.5px/1 var(--ai-font-body); cursor: pointer; }
+.ws-tab[aria-pressed="true"] { background: var(--ai-text); color: var(--ai-bg); border-color: var(--ai-text); }
+.ws-tab:focus-visible { outline: 2px solid var(--ai-focus); outline-offset: 1px; }
+.ws-dsec { display: grid; gap: 18px; padding-top: var(--ai-s-5); border-top: 1px solid var(--ai-border); }
+.ws-dsec > * { min-width: 0; }
+.ws-dsec > h3 { font: 400 22px/1.25 var(--ai-font-display); letter-spacing: -.01em; }
+.ws-dq { display: grid; gap: 6px; }
+.ws-dq > * { min-width: 0; }
+.ws-dq__q { display: flex; gap: 10px; font: 500 15px/1.4 var(--ai-font-body); color: var(--ai-text); }
+.ws-dq__n { flex: none; min-width: 22px; font: 500 12px/1.75 var(--ai-font-mono); color: var(--ai-muted); }
+.ws-dq__hint { font-size: 13px; color: var(--ai-muted); line-height: 1.5; padding-left: 32px; }
+.ws-dq .ai-field { padding-left: 32px; }
+.ws-dsec > .ws-dq__hint { padding-left: 0; }
+.ws-ticks { display: grid; gap: 8px; }
+@media (max-width: 560px) {
+  .ws-dq__hint, .ws-dq .ai-field { padding-left: 0; }
+  .ws-file { grid-template-columns: minmax(0, 1fr) auto; }
+}
+
+/* Drop a document here, or click to choose one */
+.ws-drop { display: grid; justify-items: center; gap: 6px; padding: 22px 16px; text-align: center; border: 1.5px dashed var(--ai-muted); border-radius: var(--ai-radius, 10px); background: transparent; color: var(--ai-text-2); cursor: pointer; transition: border-color .15s, background .15s; }
+.ws-drop > * { min-width: 0; }
+.ws-drop b { font: 500 14.5px/1.3 var(--ai-font-body); color: var(--ai-text); }
+.ws-drop__icon { width: 26px; height: 26px; color: var(--ai-text-2); }
+.ws-drop__icon svg { width: 100%; height: 100%; }
+.ws-drop:hover, .ws-drop.is-over { border-color: var(--ai-text); background: var(--ai-surface-2, rgba(127, 127, 127, .08)); }
+.ws-drop.is-over { border-style: solid; }
+.ws-drop:focus-visible { outline: 2px solid var(--ai-focus); outline-offset: 2px; }
+.ws-drop.is-busy { opacity: .7; pointer-events: none; }
+
+/* Test every connection */
+.ws-health.is-fail { border-color: var(--ai-bad); }
+.ws-health.is-ok .ws-item__name::before { content: "✓  "; color: var(--ai-good); }
+.ws-health__when { color: var(--ai-muted); }
+.ws-health__act { grid-column: 1 / -1; }
+
+/* The walkthrough video at the start of Setup */
+.ws-tour { display: grid; gap: 12px; padding: 16px; margin-bottom: 20px; background: var(--ai-surface); border: 1px solid var(--ai-border); border-radius: var(--ai-radius, 10px); }
+.ws-tour > * { min-width: 0; }
+.ws-tour__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.ws-tour__title { font: 400 21px/1.25 var(--ai-font-display); letter-spacing: -.01em; margin-top: 4px; }
+.ws-tour video { width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; background: #0A0A0B; display: block; }
+.ws-progress__top #tourOpen { margin-left: auto; }
+
+/* ?capture=1: the screen without its furniture, for the walkthrough video */
+.ws-capture .ai-top, .ws-capture .ws-stepnav, .ws-capture #tourOpen, .ws-capture footer { display: none !important; }
+.ws-capture .ws-main { padding-top: 18px; }
+.ws-capture #stepTitle { display: none; }

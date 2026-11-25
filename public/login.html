@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<title>Sign in · Webinar System</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 26 26%27%3E%3Crect width=%2726%27 height=%2726%27 rx=%275%27 fill=%27%230E0E10%27/%3E%3Cpath d=%27M7 8l3 10 3-8 3 8 3-10%27 fill=%27none%27 stroke=%27%23F6F6F4%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/theme.css">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body class="ai-page">
+<main class="ai-wrap ai-wrap--narrow ws-main" style="max-width:440px">
+  <p class="ai-label">Webinar System</p>
+  <h1 class="ai-h2" id="title" style="margin:8px 0 10px">Sign in</h1>
+  <p class="ai-body" id="intro" style="margin-bottom:24px">Type your password to carry on.</p>
+  <div class="ai-banner ai-banner--warn ws-hide" id="notready" style="margin-bottom:16px"></div>
+  <form id="form" class="ai-stack" novalidate>
+    <div class="ai-field ws-hide" id="codeField">
+      <label for="code">Your setup code</label>
+      <input class="ai-input" id="code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="For example K7MP2QXD">
+      <div class="ai-hint">You were given this code when the site was set up for you. It is only needed this once.</div>
+    </div>
+    <div class="ai-field">
+      <label for="password" id="pwLabel">Password</label>
+      <div class="ws-pw">
+        <input class="ai-input" id="password" type="password" autocomplete="current-password" required>
+        <button type="button" class="ws-pw__show" id="show" aria-pressed="false" aria-label="Show password">Show</button>
+      </div>
+      <div class="ai-hint ws-hide" id="pwHint">At least 8 characters. You will use it every time you sign in, so pick one you will remember.</div>
+    </div>
+    <div class="ai-err" id="error" role="alert"></div>
+    <button class="ai-btn ai-btn--block ai-btn--lg" type="submit" id="go">Sign in</button>
+  </form>
+  <div class="ai-foot"><span class="ws-quiet">Webinar System</span></div>
+</main>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var first = false;
+  var next = new URLSearchParams(location.search).get('next') || '/';
+  if (!/^\/(?!\/)/.test(next)) next = '/';
+  try { var t = localStorage.getItem('ws-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) { /* follow the system */ }
+  fetch('/api?action=session', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (s) {
+    if (s.signed_in || s.login_required === false) { location.replace(next); return; }
+    if (!s.ready || s.storage === 'none') {
+      $('notready').textContent = !s.ready ? 'This site is not finished being set up yet. Ask whoever set it up to finish, then come back.' : 'This site has nowhere to save yet. Ask whoever set it up to connect its storage, then come back.';
+      $('notready').classList.remove('ws-hide'); $('go').disabled = true;
+    }
+    if (s.needs_setup) {
+      first = true;
+      $('title').textContent = 'Welcome. Choose your password';
+      $('intro').textContent = 'This is your first visit, so there is no password yet. Type the setup code you were given, then choose a password.';
+      $('codeField').classList.remove('ws-hide'); $('pwHint').classList.remove('ws-hide');
+      $('pwLabel').textContent = 'Choose a password'; $('password').autocomplete = 'new-password'; $('go').textContent = 'Save and carry on';
+      $('code').focus();
+    } else $('password').focus();
+  });
+  $('show').addEventListener('click', function () {
+    var pw = $('password'), hidden = pw.type === 'password';
+    pw.type = hidden ? 'text' : 'password';
+    this.textContent = hidden ? 'Hide' : 'Show';
+    this.setAttribute('aria-pressed', String(hidden)); this.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
+    pw.focus();
+  });
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    $('error').textContent = ''; $('go').disabled = true;
+    var body = first ? { code: $('code').value.trim().toUpperCase(), password: $('password').value } : { password: $('password').value };
+    fetch('/api?source=' + (first ? 'setup_password' : 'login'), { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().then(function (d) { return { code: r.status, data: d }; }); })
+      .then(function (r) {
+        if (r.code === 200) { location.replace(next); return; }
+        $('go').disabled = false;
+        $('error').textContent = r.data.message || 'That did not work. Try again.';
+      }, function () { $('go').disabled = false; $('error').textContent = 'We could not reach the site. Check your internet connection and try again.'; });
+  });
+})();
+</script>
+</body>
+</html>
